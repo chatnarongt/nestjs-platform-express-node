@@ -29,6 +29,10 @@ export class MssqlService implements OnModuleInit, OnModuleDestroy {
         enableArithAbort: true,
         trustServerCertificate: true,
       },
+      pool: {
+        min: +(this.configService.get<string>('DATABASE_MIN_POOL_SIZE') || '0'),
+        max: +(this.configService.get<string>('DATABASE_MAX_POOL_SIZE') || '10'),
+      },
     }
 
     this.config = dbConfig
