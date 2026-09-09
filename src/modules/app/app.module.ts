@@ -4,7 +4,13 @@ import { BenchModule } from '../bench/bench.module.js'
 import { ProbeModule } from '../probe/app.module.js'
 
 @Module({
-  imports: [ConfigModule.forRoot(), ProbeModule, BenchModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    ProbeModule,
+    BenchModule.register(),
+  ],
   controllers: [],
   providers: [],
 })

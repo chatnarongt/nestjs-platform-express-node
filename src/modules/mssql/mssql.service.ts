@@ -20,7 +20,7 @@ export class MssqlService implements OnModuleInit, OnModuleDestroy {
 
     const dbConfig: MssqlConfig = {
       server,
-      port: this.configService.get<number>('DATABASE_PORT'),
+      port: +(this.configService.get<string>('DATABASE_PORT') || '1433'),
       user: this.configService.get<string>('DATABASE_USER'),
       password: this.configService.get<string>('DATABASE_PASSWORD'),
       database: this.configService.get<string>('DATABASE_NAME'),

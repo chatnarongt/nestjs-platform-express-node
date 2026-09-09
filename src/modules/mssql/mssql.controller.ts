@@ -1,11 +1,16 @@
 import { Controller, Get, NotFoundException, Query } from '@nestjs/common'
 import sql from 'mssql'
-import { MssqlService } from '../mssql/mssql.service.js'
+import { MssqlService } from './mssql.service.js'
 
 @Controller('bench')
-export class BenchController {
+export class MssqlController {
   constructor(private readonly db: MssqlService) {}
 
+  /**
+   * Reads a single record from the "world" table based on the provided ID.
+   *
+   * GET /bench/read-one?id=1
+   */
   @Get('read-one')
   async readOne(@Query('id') id: string) {
     const result = await this.db
@@ -20,6 +25,11 @@ export class BenchController {
     return result.recordset[0]
   }
 
+  /**
+   * Reads multiple records from the "world" table based on the provided limit and offset.
+   *
+   * GET /bench/read-many?limit=10&offset=0
+   */
   @Get('read-many')
   async readMany(@Query('limit') limit: string, @Query('offset') offset: string) {
     const result = await this.db
@@ -35,6 +45,11 @@ export class BenchController {
     return result.recordset
   }
 
+  /**
+   * Creates a single record in the "world" table based on the provided random number.
+   *
+   * GET /bench/create-one?randomNumber=42
+   */
   @Get('create-one')
   async createOne(@Query('randomNumber') randomNumber: string) {
     await this.db
@@ -43,6 +58,11 @@ export class BenchController {
       .query('INSERT INTO world (random_number) VALUES (@randomNumber)')
   }
 
+  /**
+   * Creates multiple records in the "world" table based on the provided array of random numbers.
+   *
+   * GET /bench/create-many?randomNumber=42&randomNumber=43...
+   */
   @Get('create-many')
   async createMany(@Query('randomNumber') randomNumbers: string[]) {
     const query = `
@@ -58,6 +78,12 @@ export class BenchController {
     await request.query(query)
   }
 
+  /**
+   * Updates a single record in the "world" table based on the provided JSON string containing "id" and "randomNumber" properties.
+   * Throws a NotFoundException if the record does not exist.
+   *
+   * GET /bench/update-one?record={"id":1,"randomNumber":42}
+   */
   @Get('update-one')
   async updateOne(@Query('record') record: string) {
     const { id, randomNumber } = JSON.parse(record)
@@ -93,6 +119,49 @@ export class BenchController {
     data.forEach(({ id, randomNumber }, index) => {
       request.input(`id${index}`, sql.Int, id)
       request.input(`randomNumber${index}`, sql.Int, randomNumber)
+    })
+
+    const result = await request.query(query)
+
+    if (result.rowsAffected[0] === 0) {
+      throw new NotFoundException()
+    }
+  }
+
+  /**
+   * Deletes a single record from the "world" table based on the provided ID.
+   * Throws a NotFoundException if the record does not exist.
+   *
+   * GET /bench/delete-one?id=1
+   */
+  @Get('delete-one')
+  async deleteOne(@Query('id') id: string) {
+    const result = await this.db
+      .request()
+      .input('id', sql.Int, id)
+      .query('DELETE FROM world WHERE id = @id')
+
+    if (result.rowsAffected[0] === 0) {
+      throw new NotFoundException()
+    }
+  }
+
+  /**
+   * Deletes multiple records from the "world" table based on the provided array of IDs.
+   * Throws a NotFoundException if no records are deleted.
+   *
+   * GET /bench/delete-many?id=1&id=2&id=3...
+   */
+  @Get('delete-many')
+  async deleteMany(@Query('id') ids: string[]) {
+    const query = `
+      DELETE FROM world
+      WHERE id IN (${ids.map((_, index) => `@id${index}`).join(', ')})
+    `
+    const request = this.db.request()
+
+    ids.forEach((id, index) => {
+      request.input(`id${index}`, sql.Int, id)
     })
 
     const result = await request.query(query)
