@@ -25,6 +25,23 @@ services:
     command: >
       /bin/sh -c '/opt/mssql-tools18/bin/sqlcmd -S mssql -U sa -P "$$MSSQL_SA_PASSWORD" -C -i /init.sql'
 
+  mongodb:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${DATABASE_USER}"
+      MONGO_INITDB_ROOT_PASSWORD: "${DATABASE_PASSWORD:?set DATABASE_PASSWORD}"
+      MONGO_INITDB_DATABASE: "${DATABASE_NAME}"
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./db/init-mongodb.js:/docker-entrypoint-initdb.d/init.js:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --username \"$$MONGO_INITDB_ROOT_USERNAME\" --password \"$$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --eval \"db.adminCommand('ping').ok\""]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+
   postgres:
     image: postgres:18
     environment:

@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { DynamicModule, Module } from '@nestjs/common'
 import dotenv from 'dotenv'
+import { MongodbModule } from '../mongodb/mongodb.module.js'
 import { MssqlModule } from '../mssql/mssql.module.js'
 import { PostgresModule } from '../postgres/postgres.module.js'
 
@@ -12,6 +13,10 @@ export class BenchModule {
 
     const envFileInRoot = path.resolve(process.cwd(), '.env')
     const envConfig = dotenv.parse(readFileSync(envFileInRoot))
+
+    if (envConfig.DATABASE === 'mongodb') {
+      imports.push(MongodbModule)
+    }
 
     if (envConfig.DATABASE === 'mssql') {
       imports.push(MssqlModule)
