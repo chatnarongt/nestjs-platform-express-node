@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import { MongodbModule } from '../mongodb/mongodb.module.js'
 import { MssqlModule } from '../mssql/mssql.module.js'
 import { PostgresModule } from '../postgres/postgres.module.js'
+import { BenchController } from './bench.controller.js'
 
 @Module({})
 export class BenchModule {
@@ -29,6 +30,7 @@ export class BenchModule {
     return {
       module: BenchModule,
       imports,
+      controllers: [BenchController],
     }
   }
 }
