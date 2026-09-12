@@ -96,7 +96,7 @@ export class PostgresController {
     const data = records.map((record) => JSON.parse(record))
     const query = `
       UPDATE world SET random_number = CASE id
-      ${data.map((_, index) => `WHEN $${index * 2 + 1} THEN $${index * 2 + 2}`).join(' ')}
+      ${data.map((_, index) => `WHEN $${index * 2 + 1} THEN $${index * 2 + 2}::int`).join(' ')}
       END
       WHERE id IN (${data.map((_, index) => `$${index * 2 + 1}`).join(', ')})
     `
