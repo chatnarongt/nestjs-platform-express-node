@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, ServiceUnavailableException } from '@nestjs/common'
 import { LivenessService, ReadinessService } from './services/index.js'
 
 @Controller('probe')
@@ -9,12 +9,18 @@ export class ProbeController {
   ) {}
 
   @Get('liveness')
-  checkLiveness(): boolean {
-    return this.livenessService.checkLiveness()
+  checkLiveness(): 'OK' {
+    if (!this.livenessService.checkLiveness()) {
+      throw new ServiceUnavailableException()
+    }
+    return 'OK'
   }
 
   @Get('readiness')
-  checkReadiness(): boolean {
-    return this.readinessService.checkReadiness()
+  checkReadiness(): 'OK' {
+    if (!this.readinessService.checkReadiness()) {
+      throw new ServiceUnavailableException()
+    }
+    return 'OK'
   }
 }
