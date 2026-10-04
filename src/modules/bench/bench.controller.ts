@@ -5,7 +5,7 @@ import type { Response } from 'express'
 export class BenchController {
   @Get('plaintext')
   plaintext(@Res() res: Response) {
-    res.send('Hello, World!')
+    res.type('text/plain').send('Hello, World!')
   }
 
   @Get('json')
