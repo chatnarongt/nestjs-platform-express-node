@@ -70,11 +70,14 @@ export class MongodbController {
   }
 
   /**
-   * GET /bench/read-many?limit=10&offset=0
+   * GET /bench/read-many?limit=10&afterId=0
    */
   @Get('read-many')
-  async readMany(@Query('limit') limit: string, @Query('offset') offset: string) {
-    const worlds = await this.db.findMany(integer(limit, 'limit', 1), integer(offset, 'offset', 0))
+  async readMany(@Query('limit') limit: string, @Query('afterId') afterId: string) {
+    const worlds = await this.db.findMany(
+      integer(limit, 'limit', 1),
+      integer(afterId, 'afterId', 0),
+    )
     if (!worlds.length) {
       throw new NotFoundException()
     }

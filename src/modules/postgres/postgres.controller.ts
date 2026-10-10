@@ -22,15 +22,15 @@ export class PostgresController {
   }
 
   /**
-   * Reads multiple records from the "world" table based on the provided limit and offset.
+   * Reads multiple records from the "world" table with an ID greater than the provided afterId.
    *
-   * GET /bench/read-many?limit=10&offset=0
+   * GET /bench/read-many?limit=10&afterId=0
    */
   @Get('read-many')
-  async readMany(@Query('limit') limit: string, @Query('offset') offset: string) {
-    const result = await this.db.query('SELECT * FROM world ORDER BY id LIMIT $1 OFFSET $2', [
+  async readMany(@Query('limit') limit: string, @Query('afterId') afterId: string) {
+    const result = await this.db.query('SELECT * FROM world WHERE id > $2 ORDER BY id LIMIT $1', [
       limit,
-      offset,
+      afterId,
     ])
 
     if (!result.rows.length) {

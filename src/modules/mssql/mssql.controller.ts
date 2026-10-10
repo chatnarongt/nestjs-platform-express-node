@@ -26,17 +26,17 @@ export class MssqlController {
   }
 
   /**
-   * Reads multiple records from the "world" table based on the provided limit and offset.
+   * Reads multiple records from the "world" table with an ID greater than the provided afterId.
    *
-   * GET /bench/read-many?limit=10&offset=0
+   * GET /bench/read-many?limit=10&afterId=0
    */
   @Get('read-many')
-  async readMany(@Query('limit') limit: string, @Query('offset') offset: string) {
+  async readMany(@Query('limit') limit: string, @Query('afterId') afterId: string) {
     const result = await this.db
       .request()
       .input('limit', sql.Int, limit)
-      .input('offset', sql.Int, offset)
-      .query('SELECT * FROM world ORDER BY id OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY')
+      .input('afterId', sql.Int, afterId)
+      .query('SELECT TOP (@limit) * FROM world WHERE id > @afterId ORDER BY id')
 
     if (!result.recordset.length) {
       throw new NotFoundException()

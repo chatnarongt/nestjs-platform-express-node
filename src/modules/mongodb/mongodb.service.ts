@@ -55,11 +55,10 @@ export class MongodbService implements OnModuleInit, OnModuleDestroy {
     return world && { id: world.id, random_number: world.random_number }
   }
 
-  async findMany(limit: number, offset: number) {
+  async findMany(limit: number, afterId: number) {
     const worlds = await this.worlds
-      .find({}, { projection: { _id: 0 } })
+      .find({ id: { $gt: afterId } }, { projection: { _id: 0 } })
       .sort({ id: 1 })
-      .skip(offset)
       .limit(limit)
       .toArray()
 
